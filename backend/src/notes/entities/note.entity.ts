@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from 'src/categories/entities/category.entity';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity()
 export class Note {
@@ -10,4 +17,11 @@ export class Note {
 
   @Column('boolean', { default: false })
   archived: boolean;
+
+  @ManyToOne(() => Category, { nullable: true })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
+
+  @Column('uuid', { nullable: true })
+  categoryId: string;
 }

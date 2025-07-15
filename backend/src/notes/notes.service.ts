@@ -1,15 +1,9 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Note } from './entities/note.entity';
-import { error } from 'console';
 import { NotesPaginationDto } from './dto/notes-pagination.dto';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
 
@@ -23,16 +17,9 @@ export class NotesService {
   ) {}
 
   async create(createNoteDto: CreateNoteDto) {
-    try {
-      const note = this.notesRepository.create(createNoteDto);
-      await this.notesRepository.save(note);
-      return note;
-    } catch {
-      this.logger.error(error);
-      throw new InternalServerErrorException(
-        'Cannot insert the new note, there was a server error. Check server Logs',
-      );
-    }
+    const note = this.notesRepository.create(createNoteDto);
+    await this.notesRepository.save(note);
+    return note;
   }
 
   async findAll(
@@ -87,14 +74,7 @@ export class NotesService {
       throw new NotFoundException(`Note with id ${id} cannot be found`);
     }
 
-    try {
-      await this.notesRepository.save(note);
-    } catch {
-      this.logger.error(error);
-      throw new InternalServerErrorException(
-        `Cannot update note with id ${id}, there was a server error. Check server Logs`,
-      );
-    }
+    await this.notesRepository.save(note);
     return note;
   }
 
