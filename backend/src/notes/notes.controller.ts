@@ -12,7 +12,7 @@ import {
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { NotesPaginationDto } from './dto/notes-pagination.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -24,7 +24,7 @@ export class NotesController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
+  findAll(@Query() paginationDto: NotesPaginationDto) {
     return this.notesService.findAll(paginationDto);
   }
 
@@ -34,8 +34,11 @@ export class NotesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    return this.notesService.update(+id, updateNoteDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateNoteDto: UpdateNoteDto,
+  ) {
+    return this.notesService.update(id, updateNoteDto);
   }
 
   @Delete(':id')

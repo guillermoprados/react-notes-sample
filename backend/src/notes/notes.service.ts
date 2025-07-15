@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Note } from './entities/note.entity';
 import { error } from 'console';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { NotesPaginationDto } from './dto/notes-pagination.dto';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
 
 @Injectable()
@@ -36,19 +36,30 @@ export class NotesService {
   }
 
   async findAll(
-    paginationDto: PaginationDto,
+    paginationDto: NotesPaginationDto,
   ): Promise<PaginatedResponse<Note>> {
-    const { limit = 10, page = 1 } = paginationDto;
+    const { limit = 10, page = 1, archived = 'false' } = paginationDto;
 
     const offset = (page - 1) * limit;
 
-    const totalItems = await this.notesRepository.count();
-    const totalPages = Math.ceil(totalItems / limit);
+    const whereCondition: { archived?: boolean } = {};
+    // If archived === 'all', we don't add any condition (fetch all)
+    if (archived === 'true') {
+      whereCondition.archived = true;
+    } else if (archived === 'false') {
+      whereCondition.archived = false;
+    }
 
     const data = await this.notesRepository.find({
+      where: whereCondition,
       take: limit,
       skip: offset,
     });
+
+    const totalItems = await this.notesRepository.count({
+      where: whereCondition,
+    });
+    const totalPages = Math.ceil(totalItems / limit);
 
     return {
       data,
@@ -69,8 +80,22 @@ export class NotesService {
     return note;
   }
 
-  update(id: number, updateNoteDto: UpdateNoteDto) {
-    return `This action updates a #${id} note`;
+  async update(id: string, updateNoteDto: UpdateNoteDto) {
+    const note = await this.notesRepository.preload({ id, ...updateNoteDto });
+
+    if (!note) {
+      throw new NotFoundException(`Note with id ${id} cannot be found`);
+    }
+
+    try {
+      await this.notesRepository.save(note);
+    } catch {
+      this.logger.error(error);
+      throw new InternalServerErrorException(
+        `Cannot update note with id ${id}, there was a server error. Check server Logs`,
+      );
+    }
+    return note;
   }
 
   async remove(id: string) {
