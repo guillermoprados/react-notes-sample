@@ -18,7 +18,7 @@ export class Note {
   @Column('boolean', { default: false })
   archived: boolean;
 
-  @ManyToOne(() => Category, { nullable: true })
+  @ManyToOne(() => Category, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
