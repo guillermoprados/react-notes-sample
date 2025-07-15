@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { env } from './config';
+import { NotesModule } from './notes/notes.module';
 
 @Module({
   imports: [
@@ -13,7 +14,10 @@ import { env } from './config';
       database: env.dbName,
       username: env.dbUsername,
       password: env.dbPassword,
+      autoLoadEntities: true,
+      synchronize: true,
     }),
+    NotesModule,
   ],
 })
 export class AppModule {}
