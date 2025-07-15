@@ -28,5 +28,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXIRATION_TIME=${JWT_EXIRATION_TIME}
     depends_on:
       - db

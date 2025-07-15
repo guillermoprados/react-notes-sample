@@ -8,6 +8,8 @@ interface EnvVars {
   DB_PORT: number;
   DB_NAME: string;
   DB_USERNAME: string;
+  JWT_SECRET: string;
+  JWT_EXIRATION_TIME: string;
 }
 
 const envsSchema = joi
@@ -18,6 +20,8 @@ const envsSchema = joi
     DB_PORT: joi.number().required(),
     DB_NAME: joi.string().required(),
     DB_USERNAME: joi.string().required(),
+    JWT_SECRET: joi.string().required(),
+    JWT_EXIRATION_TIME: joi.string().required(),
   })
   .unknown(true);
 
@@ -38,4 +42,6 @@ export const env = {
   dbPort: envVars.DB_PORT,
   dbName: envVars.DB_NAME,
   dbUsername: envVars.DB_USERNAME,
+  jwtSecret: envVars.JWT_SECRET,
+  jwtExpirationTime: envVars.JWT_EXIRATION_TIME,
 };

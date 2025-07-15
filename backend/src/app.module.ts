@@ -5,6 +5,8 @@ import { env } from './config';
 import { NotesModule } from './notes/notes.module';
 import { CommonModule } from './common/common.module';
 import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { CategoriesModule } from './categories/categories.module';
     NotesModule,
     CommonModule,
     CategoriesModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
