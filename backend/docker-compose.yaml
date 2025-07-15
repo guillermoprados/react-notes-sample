@@ -30,5 +30,6 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXIRATION_TIME=${JWT_EXIRATION_TIME}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
     depends_on:
       - db
