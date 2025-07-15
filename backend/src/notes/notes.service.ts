@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Note } from './entities/note.entity';
 import { error } from 'console';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class NotesService {
@@ -33,8 +35,30 @@ export class NotesService {
     }
   }
 
-  async findAll() {
-    return this.notesRepository.find({});
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<Note>> {
+    const { limit = 10, page = 1 } = paginationDto;
+
+    const offset = (page - 1) * limit;
+
+    const totalItems = await this.notesRepository.count();
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const data = await this.notesRepository.find({
+      take: limit,
+      skip: offset,
+    });
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+      },
+    };
   }
 
   async findOne(id: string) {

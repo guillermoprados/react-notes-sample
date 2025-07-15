@@ -7,10 +7,12 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -22,8 +24,8 @@ export class NotesController {
   }
 
   @Get()
-  findAll() {
-    return this.notesService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.notesService.findAll(paginationDto);
   }
 
   @Get(':id')

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { env } from './config';
 import { NotesModule } from './notes/notes.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NotesModule } from './notes/notes.module';
       synchronize: true,
     }),
     NotesModule,
+    CommonModule,
   ],
 })
 export class AppModule {}
