@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UserSafe, UsersService } from '../users/users.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../users/entities/user.entity';
@@ -38,7 +38,7 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  private generateTokens(user: User) {
+  private generateTokens(user: UserSafe) {
     const payload = { sub: user.id, email: user.email, role: user.role };
 
     const access_token = this.jwtService.sign(payload, {
