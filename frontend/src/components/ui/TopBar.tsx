@@ -1,4 +1,4 @@
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext } from '../../contexts/AppContext';
 
 const TopBar = () => {
   const { user, logout } = useAppContext();
@@ -37,4 +37,4 @@ const TopBar = () => {
   );
 };
 
-export default TopBar;
+export { TopBar };

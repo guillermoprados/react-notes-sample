@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useForm } from '../hooks/useForm';
 import { authApi } from '../services/api';
-import LoadingOverlay from '../components/LoadingOverlay';
 import { LoginSuccessResponse, LoginErrorResponse } from '../types/api';
 import { useAppContext } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { LoadingOverlay } from '../components';
 
 interface LoginForm {
   email: string;

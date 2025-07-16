@@ -1,11 +1,11 @@
 import { Navigate } from 'react-router-dom';
-import { useAppContext } from '../contexts/AppContext';
+import { useAppContext } from '../../contexts/AppContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-function ProtectedRoute({ children }: ProtectedRouteProps) {
+export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated } = useAppContext();
 
   if (!isAuthenticated) {
@@ -13,6 +13,4 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   return <>{children}</>;
-}
-
-export default ProtectedRoute;
+};

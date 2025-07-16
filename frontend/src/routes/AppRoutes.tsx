@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
-import ProtectedRoute from '../components/ProtectedRoute';
+import { ProtectedRoute } from '../components';
 
 const AppRoutes = () => {
   return (
