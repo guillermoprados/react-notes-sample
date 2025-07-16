@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Note } from 'src/notes/entities/note.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
@@ -13,4 +14,7 @@ export class User {
 
   @Column('text', { nullable: true })
   name?: string;
+
+  @OneToMany(() => Note, (note) => note.user)
+  notes: Note[];
 }

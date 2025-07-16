@@ -20,7 +20,10 @@ export class NotesService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
 
-  async create(createNoteDto: CreateNoteDto): Promise<NoteResponseDto> {
+  async create(
+    createNoteDto: CreateNoteDto,
+    userId: string,
+  ): Promise<NoteResponseDto> {
     if (createNoteDto.categoryId) {
       const categoryExists = await this.categoryRepository.findOne({
         where: { id: createNoteDto.categoryId },
@@ -33,7 +36,10 @@ export class NotesService {
       }
     }
 
-    const note = this.notesRepository.create(createNoteDto);
+    const note = this.notesRepository.create({
+      ...createNoteDto,
+      userId,
+    });
     await this.notesRepository.save(note);
 
     const savedNote = await this.notesRepository.findOne({
@@ -46,6 +52,7 @@ export class NotesService {
 
   async findAll(
     paginationDto: NotesPaginationDto,
+    userId: string,
   ): Promise<PaginatedResponse<NoteResponseDto>> {
     const {
       limit = 10,
@@ -56,7 +63,11 @@ export class NotesService {
 
     const offset = (page - 1) * limit;
 
-    const whereCondition: { archived?: boolean; categoryId?: string } = {};
+    const whereCondition: {
+      archived?: boolean;
+      categoryId?: string;
+      userId: string;
+    } = { userId };
 
     if (archived === 'true') {
       whereCondition.archived = true;
@@ -92,9 +103,9 @@ export class NotesService {
     };
   }
 
-  async findOne(id: string): Promise<NoteResponseDto> {
+  async findOne(id: string, userId: string): Promise<NoteResponseDto> {
     const note = await this.notesRepository.findOne({
-      where: { id },
+      where: { id, userId },
       relations: ['category'],
     });
 
@@ -108,6 +119,7 @@ export class NotesService {
   async update(
     id: string,
     updateNoteDto: UpdateNoteDto,
+    userId: string,
   ): Promise<NoteResponseDto> {
     if (updateNoteDto.categoryId) {
       const categoryExists = await this.categoryRepository.findOne({
@@ -121,28 +133,39 @@ export class NotesService {
       }
     }
 
-    const note = await this.notesRepository.preload({ id, ...updateNoteDto });
+    const note = await this.notesRepository.findOne({
+      where: { id, userId },
+    });
 
     if (!note) {
       throw new NotFoundException(`Note with id ${id} cannot be found`);
     }
 
-    await this.notesRepository.save(note);
+    const updatedNote = await this.notesRepository.preload({
+      id,
+      ...updateNoteDto,
+    });
 
-    const updatedNote = await this.notesRepository.findOne({
-      where: { id },
+    await this.notesRepository.save(updatedNote!);
+
+    const savedNote = await this.notesRepository.findOne({
+      where: { id, userId },
       relations: ['category'],
     });
 
-    return new NoteResponseDto(updatedNote!);
+    return new NoteResponseDto(savedNote!);
   }
 
-  async remove(id: string) {
-    const note = await this.notesRepository.findOneBy({ id });
-    if (note) {
-      await this.notesRepository.remove(note);
+  async remove(id: string, userId: string) {
+    const note = await this.notesRepository.findOne({
+      where: { id, userId },
+    });
+    
+    if (!note) {
+      throw new NotFoundException(`Note with id ${id} cannot be found`);
     }
 
+    await this.notesRepository.remove(note);
     return {};
   }
 }
