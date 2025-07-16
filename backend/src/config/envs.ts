@@ -3,27 +3,27 @@ import * as joi from 'joi';
 
 interface EnvVars {
   PORT: number;
-  DB_PASSWORD: string;
-  DB_HOST: string;
-  DB_PORT: number;
-  DB_NAME: string;
-  DB_USERNAME: string;
+  POSTGRES_PASSWORD: string;
+  POSTGRES_HOST: string;
+  POSTGRES_DB: string;
+  POSTGRES_USER: string;
   JWT_SECRET: string;
   JWT_EXIRATION_TIME: string;
   JWT_REFRESH_SECRET: string;
+  CORS_ORIGIN: string;
 }
 
 const envsSchema = joi
   .object({
     PORT: joi.number().required(),
-    DB_PASSWORD: joi.string().required(),
-    DB_HOST: joi.string().required(),
-    DB_PORT: joi.number().required(),
-    DB_NAME: joi.string().required(),
-    DB_USERNAME: joi.string().required(),
+    POSTGRES_PASSWORD: joi.string().required(),
+    POSTGRES_HOST: joi.string().required(),
+    POSTGRES_DB: joi.string().required(),
+    POSTGRES_USER: joi.string().required(),
     JWT_SECRET: joi.string().required(),
     JWT_EXIRATION_TIME: joi.string().required(),
     JWT_REFRESH_SECRET: joi.string().required(),
+    CORS_ORIGIN: joi.string().default('http://localhost:5173'),
   })
   .unknown(true);
 
@@ -39,12 +39,13 @@ const envVars: EnvVars = value;
 
 export const env = {
   port: envVars.PORT,
-  dbPassword: envVars.DB_PASSWORD,
-  dbHost: envVars.DB_HOST,
-  dbPort: envVars.DB_PORT,
-  dbName: envVars.DB_NAME,
-  dbUsername: envVars.DB_USERNAME,
+  dbPassword: envVars.POSTGRES_PASSWORD,
+  dbHost: envVars.POSTGRES_HOST,
+  dbPort: 5432,
+  dbName: envVars.POSTGRES_DB,
+  dbUsername: envVars.POSTGRES_USER,
   jwtSecret: envVars.JWT_SECRET,
   jwtExpirationTime: envVars.JWT_EXIRATION_TIME,
   jwtRefreshSecret: envVars.JWT_REFRESH_SECRET,
+  corsOrigin: envVars.CORS_ORIGIN,
 };
