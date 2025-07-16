@@ -39,7 +39,7 @@ export class AuthService {
   }
 
   private generateTokens(user: User) {
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     const access_token = this.jwtService.sign(payload, {
       expiresIn: '15m',
@@ -57,6 +57,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       },
     };
   }
@@ -68,6 +69,7 @@ export class AuthService {
         secret: env.jwtRefreshSecret,
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       const user = await this.usersService.findOne(payload.sub);
       return this.generateTokens(user);
     } catch {
