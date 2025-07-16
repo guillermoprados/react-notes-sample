@@ -9,6 +9,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +19,12 @@ export class UsersService {
   ) {}
 
   async create(registerUserDto: RegisterUserDto): Promise<User> {
-    const { email, password, name = undefined } = registerUserDto;
+    const {
+      email,
+      password,
+      name = undefined,
+      role = UserRole.USER,
+    } = registerUserDto;
 
     const existingUser = await this.usersRepo.findOne({ where: { email } });
     if (existingUser) {
@@ -30,6 +36,7 @@ export class UsersService {
       email,
       password: hash,
       name,
+      role,
     });
 
     return this.usersRepo.save(user);

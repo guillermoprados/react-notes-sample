@@ -11,12 +11,14 @@ import {
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { OnlyAdmins } from '../auth/decorators/roles.decorator';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
+  @OnlyAdmins()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
@@ -32,6 +34,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @OnlyAdmins()
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -40,6 +43,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @OnlyAdmins()
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoriesService.remove(id);
   }
