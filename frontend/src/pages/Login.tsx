@@ -3,7 +3,7 @@ import { useForm } from '../hooks/useForm';
 import { authApi } from '../services/api';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { LoginSuccessResponse, LoginErrorResponse } from '../types/api';
-import { setAccessToken } from '../utils/auth';
+import { useAppContext } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 
 interface LoginForm {
@@ -15,6 +15,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
+  const { login } = useAppContext();
   const { formState, onInputChange, onResetForm } = useForm<LoginForm>({
     email: '',
     password: '',
@@ -42,16 +43,15 @@ function Login() {
         formState.password
       );
 
-      setAccessToken(response.access_token);
+      login(response.access_token, response.refresh_token, response.user);
 
-      // Navigate to home page and clear navigation stack
       navigate('/', { replace: true });
     } catch (error: any) {
       console.error('Login failed:', error);
 
       if (error.response?.data) {
         const errorData: LoginErrorResponse = error.response.data;
-        setError(errorData.message || 'Login failed');
+        setError('Invalid Credentials');
       } else {
         setError('Network error. Please try again.');
       }

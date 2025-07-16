@@ -1,4 +1,3 @@
-// User related types
 export interface User {
   id: string;
   email: string;
@@ -6,7 +5,6 @@ export interface User {
   role: string;
 }
 
-// Auth response types
 export interface LoginSuccessResponse {
   access_token: string;
   refresh_token: string;
@@ -19,7 +17,6 @@ export interface LoginErrorResponse {
   statusCode: number;
 }
 
-// Generic API error response (for other endpoints)
 export interface ApiErrorResponse {
   message: string;
   error?: string;
