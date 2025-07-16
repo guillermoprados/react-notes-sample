@@ -1,4 +1,5 @@
 import { Category } from 'src/categories/entities/category.entity';
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
@@ -24,4 +25,11 @@ export class Note {
 
   @Column('uuid', { nullable: true })
   categoryId: string;
+
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column('uuid', { nullable: false })
+  userId: string;
 }

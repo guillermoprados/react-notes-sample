@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { User, UserType } from '../auth/decorators/user.decorator';
+import { AuthUser, AuthUserType } from '../auth/decorators/authUser.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -19,7 +19,7 @@ export class UsersController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  getMyUser(@User() user: UserType) {
+  getMyUser(@AuthUser() user: AuthUserType) {
     return this.usersService.findOne(user.id);
   }
 
