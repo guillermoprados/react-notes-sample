@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { LoginSuccessResponse, NotesResponse } from '../types/api';
+import { useAuthStore } from '../stores/authStore';
 
 const API_URL =
   (import.meta as any).env.VITE_API_URL || 'http://localhost:3000/api';
@@ -13,7 +14,13 @@ const baseConfig = {
 
 const api = axios.create(baseConfig);
 
-const createAuthenticatedApi = (accessToken: string) => {
+const authenticatedApi = () => {
+  const { accessToken } = useAuthStore.getState();
+
+  if (!accessToken) {
+    throw new Error('No access token available');
+  }
+
   return axios.create({
     ...baseConfig,
     headers: {
@@ -36,13 +43,10 @@ export const authApi = {
 export const notesApi = {
   getNotes: async (
     page: number = 1,
-    limit: number = 10,
-    accessToken: string
+    limit: number = 10
   ): Promise<NotesResponse> => {
-    const authenticatedApi = createAuthenticatedApi(accessToken);
-    const response = await authenticatedApi.get(
-      `/notes?page=${page}&limit=${limit}`
-    );
+    const api = authenticatedApi();
+    const response = await api.get(`/notes?page=${page}&limit=${limit}`);
     return response.data;
   },
 };

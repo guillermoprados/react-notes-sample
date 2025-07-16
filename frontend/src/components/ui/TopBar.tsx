@@ -1,7 +1,7 @@
-import { useAppContext } from '../../contexts/AppContext';
+import { useAuthStore } from '../../stores/authStore';
 
 const TopBar = () => {
-  const { user, logout } = useAppContext();
+  const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
     logout();

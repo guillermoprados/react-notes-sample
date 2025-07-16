@@ -1,31 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { NoteItem } from './NoteItem';
-import { Note } from '../../types/api';
-import { notesApi } from '../../services/api';
-import { useAppContext } from '../../contexts/AppContext';
+import { useAuthStore } from '../../stores/authStore';
+import { useNotesStore } from '../../stores/notesStore';
 
 const NotesList: React.FC = () => {
-  const { accessToken } = useAppContext();
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { isAuthenticated } = useAuthStore();
+  const { notes, loading, fetchNotes } = useNotesStore();
+
   useEffect(() => {
-    const fetchNotes = async () => {
-      if (!accessToken) return;
-
-      try {
-        setLoading(true);
-        const response = await notesApi.getNotes(1, 10, accessToken);
-        console.log('Notes API Response:', response);
-        setNotes(response.data);
-      } catch (error) {
-        console.error('Failed to fetch notes:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotes();
-  }, [accessToken]);
+    if (isAuthenticated) {
+      fetchNotes();
+    }
+  }, [isAuthenticated, fetchNotes]);
 
   if (loading) {
     return (
