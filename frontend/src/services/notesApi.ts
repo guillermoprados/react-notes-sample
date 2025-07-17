@@ -3,6 +3,7 @@ import {
   NotesResponse,
   CreateNoteRequest,
   CreateNoteResponse,
+  UpdateNoteRequest,
 } from '../types/api';
 
 export const notesApi = {
@@ -17,7 +18,7 @@ export const notesApi = {
       url += `&status=${status}`;
     }
     if (categoryId) {
-      url += `&category=${categoryId}`;
+      url += `&categoryId=${categoryId}`;
     }
     const response = await authenticatedApi.get(url);
     return response.data;
@@ -27,6 +28,14 @@ export const notesApi = {
     noteData: CreateNoteRequest
   ): Promise<CreateNoteResponse> => {
     const response = await authenticatedApi.post('/notes', noteData);
+    return response.data;
+  },
+
+  updateNote: async (
+    noteId: string,
+    update: UpdateNoteRequest
+  ): Promise<CreateNoteResponse> => {
+    const response = await authenticatedApi.patch(`/notes/${noteId}`, update);
     return response.data;
   },
 };

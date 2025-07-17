@@ -60,6 +60,12 @@ export interface Category {
   name: string;
 }
 
+export interface UpdateNoteRequest {
+  content?: string;
+  archived?: boolean;
+  categoryId?: string;
+}
+
 // Utils
 export interface PaginationMeta {
   page: number;

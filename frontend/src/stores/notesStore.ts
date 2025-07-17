@@ -30,6 +30,7 @@ interface NotesState {
   ) => Promise<void>;
   refetch: () => void;
   clearCache: () => void;
+  updateNote: (noteId: string, update: Partial<Note>) => Promise<void>;
 }
 
 const isCacheValid = (
@@ -110,6 +111,16 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     if (currentFetchParams) {
       const { page, limit, status, category } = currentFetchParams;
       fetchNotes(page, limit, status, category);
+    }
+  },
+
+  updateNote: async (noteId: string, update: Partial<Note>) => {
+    try {
+      await notesApi.updateNote(noteId, update);
+      get().clearCache();
+      get().refetch();
+    } catch (error) {
+      console.error('Failed to update note:', error);
     }
   },
 }));
