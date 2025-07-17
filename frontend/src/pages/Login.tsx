@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useForm } from '../hooks/useForm';
-import { authApi } from '../services/api';
-import LoadingOverlay from '../components/LoadingOverlay';
-import { LoginSuccessResponse, LoginErrorResponse } from '../types/api';
-import { setAccessToken } from '../utils/auth';
+import { LoginErrorResponse } from '../types/api';
+import { useAuthStore } from '../stores/authStore';
 import { useNavigate } from 'react-router-dom';
+import { LoadingOverlay } from '../components';
 
 interface LoginForm {
   email: string;
@@ -12,9 +11,9 @@ interface LoginForm {
 }
 
 function Login() {
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
+  const { login, isLoggingIn } = useAuthStore();
   const { formState, onInputChange, onResetForm } = useForm<LoginForm>({
     email: '',
     password: '',
@@ -34,35 +33,24 @@ function Login() {
 
     setError('');
 
-    setIsLoading(true);
-
     try {
-      const response: LoginSuccessResponse = await authApi.login(
-        formState.email,
-        formState.password
-      );
-
-      setAccessToken(response.access_token);
-
-      // Navigate to home page and clear navigation stack
+      await login(formState.email, formState.password);
       navigate('/', { replace: true });
     } catch (error: any) {
       console.error('Login failed:', error);
 
       if (error.response?.data) {
         const errorData: LoginErrorResponse = error.response.data;
-        setError(errorData.message || 'Login failed');
+        setError('Invalid Credentials');
       } else {
         setError('Network error. Please try again.');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <>
-      <LoadingOverlay isLoading={isLoading} message="Logging in..." />
+      <LoadingOverlay isLoading={isLoggingIn} message="Logging in..." />
       <div className="h-screen w-screen flex items-center justify-center bg-gray-200 p-0 m-0">
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
