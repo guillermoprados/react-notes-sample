@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { NoteItem } from './NoteItem';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotesStore } from '../../stores/notesStore';
 import { usePagination } from '../../hooks/usePagination';
 import { Paginator } from '../Paginator';
+import { ToggleGroup } from '../ui/ToggleGroup';
+
+const archiveFilterOptions = ['Not Archived', 'Archived', 'All'];
 
 interface NotesListProps {
   onShowAddNewNote: () => void;
@@ -17,6 +20,13 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
     initialPage: 1,
     initialPageSize: 10,
   });
+
+  const [selectedArchiveIndex, setSelectedArchiveIndex] = useState(0);
+
+  const handleArchiveFilterChange = (index: number, option: string) => {
+    setSelectedArchiveIndex(index);
+    console.log('Selected:', { index, option });
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -39,9 +49,27 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md m-6 flex-1 flex flex-col">
+      {/* Header with filters */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+        <div className="flex-1">
+          <span className="text-sm text-gray-600">Categoria</span>
+        </div>
+
+        <div className="flex-1 flex justify-center">
+          <ToggleGroup
+            options={archiveFilterOptions}
+            selectedIndex={selectedArchiveIndex}
+            onSelectionChange={handleArchiveFilterChange}
+          />
+        </div>
+
+        <div className="flex-1"></div>
+      </div>
+
+      {/* Notes content */}
       <div className="flex-1">
         {notes.length > 0 ? (
-          notes.map((note) => <NoteItem key={note.id} content={note.content} />)
+          notes.map((note) => <NoteItem key={note.id} note={note} />)
         ) : (
           <div className="flex items-center justify-center h-full min-h-64">
             <p className="text-gray-500 text-center">No notes found</p>
