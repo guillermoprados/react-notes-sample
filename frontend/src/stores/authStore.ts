@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '../types/api';
 import { authApi } from '../services/api';
+import { storeManager } from './storeManager';
 
 interface AuthState {
   accessToken: string | null;
@@ -43,8 +44,10 @@ export const useAuthStore = create<AuthState>()(
           throw error;
         }
       },
-
       logout: () => {
+        // Clear all application stores
+        storeManager.clearAllStores();
+
         set({
           accessToken: null,
           refreshToken: null,

@@ -1,10 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TopBar, NotesList, AddNoteModal } from '../components';
 import { useNotesStore } from '../stores/notesStore';
+import { useCategoriesStore } from '../stores/categoriesStore';
+import { useAuthStore } from '../stores/authStore';
 
 function Home() {
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
   const { pagination, clearCache, fetchNotes } = useNotesStore();
+  const { categories, fetchCategories } = useCategoriesStore();
+  const { isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated && categories.length === 0) {
+      fetchCategories();
+    }
+  }, [isAuthenticated, categories.length, fetchCategories]);
 
   const openAddNewNoteModal = () => {
     setIsAddNoteOpen(true);

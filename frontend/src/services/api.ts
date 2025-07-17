@@ -4,6 +4,7 @@ import {
   NotesResponse,
   CreateNoteRequest,
   CreateNoteResponse,
+  Category,
 } from '../types/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -60,6 +61,14 @@ export const notesApi = {
   ): Promise<CreateNoteResponse> => {
     const api = authenticatedApi();
     const response = await api.post('/notes', noteData);
+    return response.data;
+  },
+};
+
+export const categoriesApi = {
+  getCategories: async (): Promise<Category[]> => {
+    const api = authenticatedApi();
+    const response = await api.get('/categories');
     return response.data;
   },
 };
