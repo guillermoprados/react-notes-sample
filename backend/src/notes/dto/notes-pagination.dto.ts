@@ -9,5 +9,5 @@ export class NotesPaginationDto extends PartialType(PaginationDto) {
 
   @IsOptional()
   @IsUUID()
-  category?: string;
+  categoryId?: string;
 }

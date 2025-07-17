@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from '../../hooks/useForm';
 import { LoadingOverlay } from '../ui/LoadingOverlay';
 import { notesApi } from '../../services';
+import { useCategoriesStore } from '../../stores/categoriesStore';
 
 interface AddNoteForm {
   content: string;
@@ -21,11 +22,19 @@ export const AddNoteModal = ({
   const { formState, onInputChange } = useForm<AddNoteForm>({
     content: '',
   });
+  const { categories } = useCategoriesStore();
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    undefined
+  );
 
   const isFormValid = formState.content.trim().length > 0;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onInputChange(e);
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(e.target.value || undefined);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,6 +46,7 @@ export const AddNoteModal = ({
     try {
       await notesApi.createNote({
         content: formState.content.trim(),
+        categoryId: selectedCategory || undefined,
       });
 
       onNewNoteCreated();
@@ -57,7 +67,6 @@ export const AddNoteModal = ({
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Add New Note
           </h2>
-
           <form className="space-y-6" onSubmit={handleSubmit}>
             <textarea
               id="content"
@@ -68,9 +77,28 @@ export const AddNoteModal = ({
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:border-blue-500 focus:ring-blue-500 resize-none"
               placeholder="Write your note here..."
             />
-
+            <div>
+              <label
+                htmlFor="category-select"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Category
+              </label>
+              <select
+                id="category-select"
+                value={selectedCategory || ''}
+                onChange={handleCategoryChange}
+                className="border rounded px-2 py-1 text-sm w-full"
+              >
+                <option value="">None</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
-
             <div className="flex space-x-3">
               <button
                 type="submit"

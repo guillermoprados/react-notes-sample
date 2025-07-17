@@ -38,6 +38,7 @@ export interface Note {
 
 export interface CreateNoteRequest {
   content: string;
+  categoryId?: string;
 }
 
 export interface CreateNoteResponse {
