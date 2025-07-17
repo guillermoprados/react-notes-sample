@@ -38,4 +38,8 @@ export const notesApi = {
     const response = await authenticatedApi.patch(`/notes/${noteId}`, update);
     return response.data;
   },
+
+  deleteNote: async (noteId: string): Promise<void> => {
+    await authenticatedApi.delete(`/notes/${noteId}`);
+  },
 };
