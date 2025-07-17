@@ -78,7 +78,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
     set({ loading: true });
     try {
-      const response = await notesApi.getNotes(page, limit, status);
+      const response = await notesApi.getNotes(page, limit, status, category);
 
       const newCache: FilterCache = {
         status,

@@ -9,11 +9,15 @@ export const notesApi = {
   getNotes: async (
     page: number = 1,
     limit: number = 10,
-    status?: string
+    status?: string,
+    categoryId?: string
   ): Promise<NotesResponse> => {
     let url = `/notes?page=${page}&limit=${limit}`;
     if (status) {
       url += `&status=${status}`;
+    }
+    if (categoryId) {
+      url += `&category=${categoryId}`;
     }
     const response = await authenticatedApi.get(url);
     return response.data;

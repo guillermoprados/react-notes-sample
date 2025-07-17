@@ -4,6 +4,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useNotesStore } from '../../stores/notesStore';
 import { Paginator } from '../Paginator';
 import { ToggleGroup } from '../ui/ToggleGroup';
+import { useCategoriesStore } from '../../stores/categoriesStore';
 
 const archiveFilterOptions = ['Not Archived', 'Archived', 'All'];
 const statusMap = ['not-archived', 'archived', 'all'] as const;
@@ -13,7 +14,7 @@ interface NotesListProps {
   onShowAddNewNote: () => void;
 }
 
-const StatusKeyForIndex = (index: number): string | undefined => {
+const statusKeyForIndex = (index: number): string | undefined => {
   return statusMap[index] === 'all' ? undefined : statusMap[index];
 };
 
@@ -21,9 +22,13 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
   const { isAuthenticated } = useAuthStore();
   const { notes, loading, pagination, fetchNotes, clearCache } =
     useNotesStore();
+  const { categories } = useCategoriesStore();
 
   const [selectedArchiveIndex, setSelectedArchiveIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    undefined
+  );
 
   const handleArchiveFilterChange = (index: number, option: string) => {
     setSelectedArchiveIndex(index);
@@ -31,15 +36,32 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
     clearCache();
   };
 
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(e.target.value || undefined);
+    setCurrentPage(1);
+    clearCache();
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
+      const categoryId =
+        selectedCategory && selectedCategory !== ''
+          ? selectedCategory
+          : undefined;
       fetchNotes(
         currentPage,
         ITEMS_PER_PAGE,
-        StatusKeyForIndex(selectedArchiveIndex)
+        statusKeyForIndex(selectedArchiveIndex),
+        categoryId
       );
     }
-  }, [isAuthenticated, currentPage, selectedArchiveIndex, fetchNotes]);
+  }, [
+    isAuthenticated,
+    currentPage,
+    selectedArchiveIndex,
+    selectedCategory,
+    fetchNotes,
+  ]);
 
   if (loading) {
     return (
@@ -53,10 +75,7 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
     <div className="bg-white rounded-lg shadow-md m-6 flex-1 flex flex-col">
       {/* Header with filters */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-        <div className="flex-1">
-          <span className="text-sm text-gray-600">Categoria</span>
-        </div>
-
+        <div className="hidden md:block flex-1"></div>
         <div className="flex-1 flex justify-center">
           <ToggleGroup
             options={archiveFilterOptions}
@@ -64,8 +83,27 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
             onSelectionChange={handleArchiveFilterChange}
           />
         </div>
-
-        <div className="flex-1"></div>
+        <div className="flex-1 flex justify-end items-center">
+          <label
+            className="hidden md:block text-sm text-gray-600 mr-2"
+            htmlFor="category-select"
+          >
+            Category
+          </label>
+          <select
+            id="category-select"
+            value={selectedCategory || ''}
+            onChange={handleCategoryChange}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            <option value="">All</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Notes content */}
@@ -80,7 +118,7 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
       </div>
       {pagination && (
         <div className="mt-auto flex items-center justify-between px-4 border-t border-gray-200">
-          <div className="flex-1"></div>
+          <div className="hidden md:block flex-1"></div>
           <div className="flex-1 flex justify-center">
             <Paginator
               currentPage={currentPage}
