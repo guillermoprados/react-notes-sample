@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '../types/api';
-import { authApi } from '../services/api';
+
 import { storeManager } from './storeManager';
+import { authApi } from '../services';
 
 interface AuthState {
   accessToken: string | null;

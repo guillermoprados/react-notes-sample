@@ -1,12 +1,6 @@
 import axios from 'axios';
-import {
-  LoginSuccessResponse,
-  NotesResponse,
-  CreateNoteRequest,
-  CreateNoteResponse,
-  Category,
-} from '../types/api';
 import { useAuthStore } from '../stores/authStore';
+import { authApi } from './authApi';
 
 const API_URL =
   (import.meta as any).env.VITE_API_URL || 'http://localhost:3000/api';
@@ -20,62 +14,51 @@ const baseConfig = {
 
 const api = axios.create(baseConfig);
 
-const authenticatedApi = () => {
-  const { accessToken } = useAuthStore.getState();
+const authenticatedApi = axios.create(baseConfig);
 
-  if (!accessToken) {
-    throw new Error('No access token available');
-  }
-
-  return axios.create({
-    ...baseConfig,
-    headers: {
-      ...baseConfig.headers,
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-};
-
-export const authApi = {
-  login: async (
-    email: string,
-    password: string
-  ): Promise<LoginSuccessResponse> => {
-    const response = await api.post('/auth/login', { email, password });
-    return response.data;
-  },
-};
-
-export const notesApi = {
-  getNotes: async (
-    page: number = 1,
-    limit: number = 10,
-    status?: string
-  ): Promise<NotesResponse> => {
-    const api = authenticatedApi();
-    let url = `/notes?page=${page}&limit=${limit}`;
-    if (status) {
-      url += `&status=${status}`;
+authenticatedApi.interceptors.request.use(
+  (config) => {
+    const { accessToken } = useAuthStore.getState();
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
-    const response = await api.get(url);
-    return response.data;
+    return config;
   },
+  (error) => Promise.reject(error)
+);
 
-  createNote: async (
-    noteData: CreateNoteRequest
-  ): Promise<CreateNoteResponse> => {
-    const api = authenticatedApi();
-    const response = await api.post('/notes', noteData);
-    return response.data;
-  },
-};
+authenticatedApi.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-export const categoriesApi = {
-  getCategories: async (): Promise<Category[]> => {
-    const api = authenticatedApi();
-    const response = await api.get('/categories');
-    return response.data;
-  },
-};
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
-export default api;
+      const { refreshToken, setTokens, logout } = useAuthStore.getState();
+
+      if (!refreshToken) {
+        logout();
+        return Promise.reject(error);
+      }
+
+      // Retry original request
+      try {
+        const response = await authApi.refreshToken(refreshToken);
+        const { access_token, refresh_token, user } = response;
+
+        setTokens(access_token, refresh_token, user);
+
+        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+        return authenticatedApi(originalRequest);
+      } catch (refreshError) {
+        logout();
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export { authenticatedApi, api };

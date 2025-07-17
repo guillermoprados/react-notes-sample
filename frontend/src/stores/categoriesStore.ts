@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Category } from '../types/api';
-import { categoriesApi } from '../services/api';
+import { categoriesApi } from '../services';
 
 interface CategoriesState {
   categories: Category[];
