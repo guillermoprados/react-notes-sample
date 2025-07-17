@@ -1,14 +1,39 @@
 import { Note } from '../../types/api';
+import { IoArchiveOutline, IoReload, IoTrash } from 'react-icons/io5';
+import { useState } from 'react';
+import { useNotesStore } from '../../stores/notesStore';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { useNoteActionsStore } from '../../stores/noteActionsStore';
 
 interface NoteItemProps {
   note: Note;
 }
 
 const NoteItem: React.FC<NoteItemProps> = ({ note }) => {
-  const { content, category, archived } = note;
+  const { content, category, archived, id } = note;
+  const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const { updateNote, deleteNote } = useNotesStore();
+  const { openEditNote } = useNoteActionsStore();
+
+  const handleArchiveToggle = async () => {
+    setLoading(true);
+    await updateNote(id, { archived: !archived });
+    setLoading(false);
+  };
+
+  const handleDeleteNote = async () => {
+    setLoading(true);
+    await deleteNote(id);
+    setLoading(false);
+    setShowConfirm(false);
+  };
 
   return (
-    <div className="p-4 border-b border-gray-200 last:border-b-0 flex items-start gap-3">
+    <div
+      className="p-4 border-b border-gray-200 last:border-b-0 flex items-start gap-3 cursor-pointer hover:bg-gray-50"
+      onClick={() => openEditNote(id)}
+    >
       <div className="flex-1 min-w-0">
         {/* Chips */}
         <div className="flex gap-2 mb-2">
@@ -27,19 +52,43 @@ const NoteItem: React.FC<NoteItemProps> = ({ note }) => {
         <p className="text-gray-800 truncate text-left">{content}</p>
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+        {archived ? (
+          <button
+            onClick={handleArchiveToggle}
+            disabled={loading}
+            className="px-3 py-1 md:w-[100px] text-sm rounded hover:opacity-80 transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200 flex gap-2 items-center disabled:opacity-50"
+          >
+            <IoReload size={16} className="mr-1" />{' '}
+            <p className="hidden md:block">Restore</p>
+          </button>
+        ) : (
+          <button
+            onClick={handleArchiveToggle}
+            disabled={loading}
+            className="px-3 py-1 md:w-[100px] text-sm rounded hover:opacity-80 transition-colors bg-purple-100 text-purple-700 hover:bg-red-200 flex gap-2 items-center disabled:opacity-50"
+          >
+            <IoArchiveOutline size={16} className="mr-1" />{' '}
+            <p className="hidden md:block">Archive</p>
+          </button>
+        )}
         <button
-          onClick={() => {
-            console.log('Archive note:', note.id);
-          }}
-          className={`px-3 py-1 text-sm rounded hover:opacity-80 transition-colors ${
-            archived
-              ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-              : 'bg-red-100 text-red-700 hover:bg-red-200'
-          }`}
+          onClick={() => setShowConfirm(true)}
+          disabled={loading}
+          className="px-3 py-1 md:w-[100px] mt-2 text-sm rounded hover:opacity-80 transition-colors bg-red-100 text-red-700 hover:bg-red-200 flex gap-2 items-center disabled:opacity-50"
         >
-          {archived ? 'Unarchive' : 'Archive'}
+          <IoTrash size={16} className="mr-1" />{' '}
+          <p className="hidden md:block">Delete</p>
         </button>
+        <ConfirmModal
+          open={showConfirm}
+          title="Delete Note"
+          message="Are you sure you want to delete this note?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={handleDeleteNote}
+          onCancel={() => setShowConfirm(false)}
+        />
       </div>
     </div>
   );
