@@ -13,6 +13,8 @@ interface AuthState {
   isLoggingIn: boolean;
 
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  isRegistering: boolean;
   logout: () => void;
   setTokens: (accessToken: string, refreshToken: string, user: User) => void;
   clearAuth: () => void;
@@ -26,13 +28,13 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoggingIn: false,
+      isRegistering: false,
 
       login: async (email: string, password: string) => {
         set({ isLoggingIn: true });
         try {
           const response = await authApi.login(email, password);
           const { access_token, refresh_token, user } = response;
-
           set({
             accessToken: access_token,
             refreshToken: refresh_token,
@@ -42,6 +44,23 @@ export const useAuthStore = create<AuthState>()(
           });
         } catch (error) {
           set({ isLoggingIn: false });
+          throw error;
+        }
+      },
+      register: async (email: string, password: string, name: string) => {
+        set({ isRegistering: true });
+        try {
+          const response = await authApi.register(email, password, name);
+          const { access_token, refresh_token, user } = response;
+          set({
+            accessToken: access_token,
+            refreshToken: refresh_token,
+            user,
+            isAuthenticated: true,
+            isRegistering: false,
+          });
+        } catch (error) {
+          set({ isRegistering: false });
           throw error;
         }
       },
