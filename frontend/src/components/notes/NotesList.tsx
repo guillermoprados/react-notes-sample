@@ -2,42 +2,44 @@ import { useEffect, useState } from 'react';
 import { NoteItem } from './NoteItem';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotesStore } from '../../stores/notesStore';
-import { usePagination } from '../../hooks/usePagination';
 import { Paginator } from '../Paginator';
 import { ToggleGroup } from '../ui/ToggleGroup';
 
 const archiveFilterOptions = ['Not Archived', 'Archived', 'All'];
+const statusMap = ['not-archived', 'archived', 'all'] as const;
+const ITEMS_PER_PAGE = 8;
 
 interface NotesListProps {
   onShowAddNewNote: () => void;
 }
 
+const StatusKeyForIndex = (index: number): string | undefined => {
+  return statusMap[index] === 'all' ? undefined : statusMap[index];
+};
+
 const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
   const { isAuthenticated } = useAuthStore();
-  const { notes, loading, pagination, fetchNotes } = useNotesStore();
-
-  const paginator = usePagination({
-    initialPage: 1,
-    initialPageSize: 10,
-  });
+  const { notes, loading, pagination, fetchNotes, clearCache } =
+    useNotesStore();
 
   const [selectedArchiveIndex, setSelectedArchiveIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleArchiveFilterChange = (index: number, option: string) => {
     setSelectedArchiveIndex(index);
-    console.log('Selected:', { index, option });
+    setCurrentPage(1);
+    clearCache();
   };
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchNotes(paginator.currentPage, paginator.currentPageSize);
+      fetchNotes(
+        currentPage,
+        ITEMS_PER_PAGE,
+        StatusKeyForIndex(selectedArchiveIndex)
+      );
     }
-  }, [
-    isAuthenticated,
-    paginator.currentPage,
-    paginator.currentPageSize,
-    fetchNotes,
-  ]);
+  }, [isAuthenticated, currentPage, selectedArchiveIndex, fetchNotes]);
 
   if (loading) {
     return (
@@ -81,10 +83,9 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
           <div className="flex-1"></div>
           <div className="flex-1 flex justify-center">
             <Paginator
-              currentPage={pagination.page}
+              currentPage={currentPage}
               totalPages={pagination.totalPages}
-              onPrevious={paginator.goToPreviousPage}
-              onNext={paginator.goToNextPage}
+              onPageChange={setCurrentPage}
             />
           </div>
           <div className="flex-1 flex justify-end">
