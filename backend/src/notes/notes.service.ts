@@ -54,7 +54,7 @@ export class NotesService {
     paginationDto: NotesPaginationDto,
     userId: string,
   ): Promise<PaginatedResponse<NoteResponseDto>> {
-    const { limit = 10, page = 1, status = 'all', category } = paginationDto;
+    const { limit = 10, page = 1, status = 'all', categoryId } = paginationDto;
 
     const offset = (page - 1) * limit;
 
@@ -71,8 +71,8 @@ export class NotesService {
     }
     // If status === 'all', we don't add any condition (fetch all)
 
-    if (category) {
-      whereCondition.categoryId = category;
+    if (categoryId) {
+      whereCondition.categoryId = categoryId;
     }
 
     const data = await this.notesRepository.find({
