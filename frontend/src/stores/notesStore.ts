@@ -2,9 +2,10 @@ import { create } from 'zustand';
 import { Note, PaginationMeta } from '../types/api';
 import { notesApi } from '../services/api';
 
-interface CachedPage {
-  notes: Note[];
-  pagination: PaginationMeta;
+interface FilterCache {
+  status?: string;
+  category?: string;
+  pages: Record<string, Note[]>;
   timestamp: number;
 }
 
@@ -12,47 +13,81 @@ interface NotesState {
   notes: Note[];
   loading: boolean;
   pagination: PaginationMeta | null;
-  cache: Map<string, CachedPage>;
-  fetchNotes: (page?: number, limit?: number) => Promise<void>;
+  cache: FilterCache | null;
+
+  fetchParams: {
+    page: number;
+    limit: number;
+    status?: string;
+    category?: string;
+  } | null;
+
+  fetchNotes: (
+    page?: number,
+    limit?: number,
+    status?: string,
+    category?: string
+  ) => Promise<void>;
+  refetch: () => void;
   clearCache: () => void;
 }
 
-const isCacheValid = (cachedPage: CachedPage): boolean => {
+const isCacheValid = (
+  cache: FilterCache | null,
+  status?: string,
+  category?: string
+): boolean => {
+  if (!cache) return false;
+
+  if ((cache.status || '') !== (status || '')) return false;
+  if ((cache.category || '') !== (category || '')) return false;
+
   const now = Date.now();
   const CACHE_DURATION = 5 * 60 * 1000;
-  return now - cachedPage.timestamp < CACHE_DURATION;
+  return now - cache.timestamp < CACHE_DURATION;
 };
 
 export const useNotesStore = create<NotesState>((set, get) => ({
   notes: [],
   loading: false,
   pagination: null,
-  cache: new Map(),
+  cache: null,
+  fetchParams: null,
 
-  fetchNotes: async (page = 1, limit = 10) => {
-    const cacheKey = `${page}-${limit}`;
+  fetchNotes: async (
+    page = 1,
+    limit = 10,
+    status?: string,
+    category?: string
+  ) => {
+    set({ fetchParams: { page, limit, status, category } });
+
     const { cache } = get();
+    const pageKey = `${page}-${limit}`;
 
-    const cachedPage = cache.get(cacheKey);
-    if (cachedPage && isCacheValid(cachedPage)) {
-      set({
-        notes: cachedPage.notes,
-        pagination: cachedPage.pagination,
-        loading: false,
-      });
-      return;
+    if (isCacheValid(cache, status, category)) {
+      const cachedNotes = cache!.pages[pageKey];
+      if (cachedNotes) {
+        set({
+          notes: cachedNotes,
+          loading: false,
+        });
+        return;
+      }
     }
 
     set({ loading: true });
     try {
-      const response = await notesApi.getNotes(page, limit);
+      const response = await notesApi.getNotes(page, limit, status);
 
-      const newCache = new Map(cache);
-      newCache.set(cacheKey, {
-        notes: response.data,
-        pagination: response.meta,
+      const newCache: FilterCache = {
+        status,
+        category,
+        pages: cache
+          ? { ...cache.pages, [pageKey]: response.data }
+          : { [pageKey]: response.data },
         timestamp: Date.now(),
-      });
+      };
 
       set({
         notes: response.data,
@@ -67,6 +102,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
 
   clearCache: () => {
-    set({ cache: new Map() });
+    set({ cache: null });
+  },
+
+  refetch: () => {
+    const { fetchParams: currentFetchParams, fetchNotes } = get();
+    if (currentFetchParams) {
+      const { page, limit, status, category } = currentFetchParams;
+      fetchNotes(page, limit, status, category);
+    }
   },
 }));

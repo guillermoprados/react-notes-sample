@@ -54,12 +54,7 @@ export class NotesService {
     paginationDto: NotesPaginationDto,
     userId: string,
   ): Promise<PaginatedResponse<NoteResponseDto>> {
-    const {
-      limit = 10,
-      page = 1,
-      archived = 'false',
-      category,
-    } = paginationDto;
+    const { limit = 10, page = 1, status = 'all', category } = paginationDto;
 
     const offset = (page - 1) * limit;
 
@@ -69,12 +64,12 @@ export class NotesService {
       userId: string;
     } = { userId };
 
-    if (archived === 'true') {
+    if (status === 'archived') {
       whereCondition.archived = true;
-    } else if (archived === 'false') {
+    } else if (status === 'not-archived') {
       whereCondition.archived = false;
     }
-    // If archived === 'all', we don't add any condition (fetch all)
+    // If status === 'all', we don't add any condition (fetch all)
 
     if (category) {
       whereCondition.categoryId = category;
@@ -85,6 +80,9 @@ export class NotesService {
       take: limit,
       skip: offset,
       relations: ['category'],
+      order: {
+        createdAt: 'DESC',
+      },
     });
 
     const totalItems = await this.notesRepository.count({
@@ -160,7 +158,7 @@ export class NotesService {
     const note = await this.notesRepository.findOne({
       where: { id, userId },
     });
-    
+
     if (!note) {
       throw new NotFoundException(`Note with id ${id} cannot be found`);
     }

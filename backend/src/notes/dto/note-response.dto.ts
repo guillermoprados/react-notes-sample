@@ -2,6 +2,8 @@ import { Note } from '../entities/note.entity';
 
 export class NoteResponseDto {
   id: string;
+  createdAt: Date;
+  updatedAt: Date;
   content: string;
   archived: boolean;
   category: {
@@ -11,6 +13,8 @@ export class NoteResponseDto {
 
   constructor(note: Note) {
     this.id = note.id;
+    this.createdAt = note.createdAt;
+    this.updatedAt = note.updatedAt;
     this.content = note.content;
     this.archived = note.archived;
     this.category = note.category

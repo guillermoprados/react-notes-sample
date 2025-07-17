@@ -1,5 +1,11 @@
 import axios from 'axios';
-import { LoginSuccessResponse, NotesResponse } from '../types/api';
+import {
+  LoginSuccessResponse,
+  NotesResponse,
+  CreateNoteRequest,
+  CreateNoteResponse,
+  Category,
+} from '../types/api';
 import { useAuthStore } from '../stores/authStore';
 
 const API_URL =
@@ -43,10 +49,31 @@ export const authApi = {
 export const notesApi = {
   getNotes: async (
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    status?: string
   ): Promise<NotesResponse> => {
     const api = authenticatedApi();
-    const response = await api.get(`/notes?page=${page}&limit=${limit}`);
+    let url = `/notes?page=${page}&limit=${limit}`;
+    if (status) {
+      url += `&status=${status}`;
+    }
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  createNote: async (
+    noteData: CreateNoteRequest
+  ): Promise<CreateNoteResponse> => {
+    const api = authenticatedApi();
+    const response = await api.post('/notes', noteData);
+    return response.data;
+  },
+};
+
+export const categoriesApi = {
+  getCategories: async (): Promise<Category[]> => {
+    const api = authenticatedApi();
+    const response = await api.get('/categories');
     return response.data;
   },
 };
