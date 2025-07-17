@@ -80,6 +80,9 @@ export class NotesService {
       take: limit,
       skip: offset,
       relations: ['category'],
+      order: {
+        createdAt: 'DESC',
+      },
     });
 
     const totalItems = await this.notesRepository.count({

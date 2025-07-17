@@ -32,6 +32,8 @@ export interface Note {
   content: string;
   archived: boolean;
   category: Category | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateNoteRequest {
@@ -43,6 +45,8 @@ export interface CreateNoteResponse {
   content: string;
   archived: boolean;
   category: Category | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface NotesResponse {

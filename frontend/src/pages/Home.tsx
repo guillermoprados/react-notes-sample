@@ -6,7 +6,7 @@ import { useAuthStore } from '../stores/authStore';
 
 function Home() {
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
-  const { pagination, clearCache, fetchNotes } = useNotesStore();
+  const { clearCache, refetch } = useNotesStore();
   const { categories, fetchCategories } = useCategoriesStore();
   const { isAuthenticated } = useAuthStore();
 
@@ -26,6 +26,7 @@ function Home() {
 
   const handleNewNoteCreated = () => {
     clearCache();
+    refetch();
   };
 
   return (

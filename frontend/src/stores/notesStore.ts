@@ -14,12 +14,21 @@ interface NotesState {
   loading: boolean;
   pagination: PaginationMeta | null;
   cache: FilterCache | null;
+
+  fetchParams: {
+    page: number;
+    limit: number;
+    status?: string;
+    category?: string;
+  } | null;
+
   fetchNotes: (
     page?: number,
     limit?: number,
     status?: string,
     category?: string
   ) => Promise<void>;
+  refetch: () => void;
   clearCache: () => void;
 }
 
@@ -43,6 +52,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   loading: false,
   pagination: null,
   cache: null,
+  fetchParams: null,
 
   fetchNotes: async (
     page = 1,
@@ -50,6 +60,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     status?: string,
     category?: string
   ) => {
+    set({ fetchParams: { page, limit, status, category } });
+
     const { cache } = get();
     const pageKey = `${page}-${limit}`;
 
@@ -91,5 +103,13 @@ export const useNotesStore = create<NotesState>((set, get) => ({
 
   clearCache: () => {
     set({ cache: null });
+  },
+
+  refetch: () => {
+    const { fetchParams: currentFetchParams, fetchNotes } = get();
+    if (currentFetchParams) {
+      const { page, limit, status, category } = currentFetchParams;
+      fetchNotes(page, limit, status, category);
+    }
   },
 }));
