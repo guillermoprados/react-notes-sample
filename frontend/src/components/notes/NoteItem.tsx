@@ -3,6 +3,7 @@ import { IoArchiveOutline, IoReload, IoTrash } from 'react-icons/io5';
 import { useState } from 'react';
 import { useNotesStore } from '../../stores/notesStore';
 import { ConfirmModal } from '../ui/ConfirmModal';
+import { useNoteActionsStore } from '../../stores/noteActionsStore';
 
 interface NoteItemProps {
   note: Note;
@@ -13,6 +14,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note }) => {
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const { updateNote, deleteNote } = useNotesStore();
+  const { openEditNote } = useNoteActionsStore();
 
   const handleArchiveToggle = async () => {
     setLoading(true);
@@ -28,7 +30,10 @@ const NoteItem: React.FC<NoteItemProps> = ({ note }) => {
   };
 
   return (
-    <div className="p-4 border-b border-gray-200 last:border-b-0 flex items-start gap-3">
+    <div
+      className="p-4 border-b border-gray-200 last:border-b-0 flex items-start gap-3 cursor-pointer hover:bg-gray-50"
+      onClick={() => openEditNote(id)}
+    >
       <div className="flex-1 min-w-0">
         {/* Chips */}
         <div className="flex gap-2 mb-2">
@@ -47,7 +52,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note }) => {
         <p className="text-gray-800 truncate text-left">{content}</p>
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
         {archived ? (
           <button
             onClick={handleArchiveToggle}

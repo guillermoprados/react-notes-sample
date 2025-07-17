@@ -5,24 +5,22 @@ import { useNotesStore } from '../../stores/notesStore';
 import { Paginator } from '../Paginator';
 import { ToggleGroup } from '../ui/ToggleGroup';
 import { useCategoriesStore } from '../../stores/categoriesStore';
+import { useNoteActionsStore } from '../../stores/noteActionsStore';
 
 const archiveFilterOptions = ['Not Archived', 'Archived', 'All'];
 const statusMap = ['not-archived', 'archived', 'all'] as const;
 const ITEMS_PER_PAGE = 8;
 
-interface NotesListProps {
-  onShowAddNewNote: () => void;
-}
-
 const statusKeyForIndex = (index: number): string | undefined => {
   return statusMap[index] === 'all' ? undefined : statusMap[index];
 };
 
-const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
+const NotesList: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
   const { notes, loading, pagination, fetchNotes, clearCache } =
     useNotesStore();
   const { categories } = useCategoriesStore();
+  const { openAddNote } = useNoteActionsStore();
 
   const [selectedArchiveIndex, setSelectedArchiveIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,7 +126,7 @@ const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
           </div>
           <div className="flex-1 flex justify-end">
             <button
-              onClick={onShowAddNewNote}
+              onClick={openAddNote}
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors"
             >
               Add New Note
