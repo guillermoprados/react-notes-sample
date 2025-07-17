@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Note, PaginationMeta } from '../types/api';
-import { notesApi } from '../services/api';
+import { notesApi } from '../services';
 
 interface FilterCache {
   status?: string;

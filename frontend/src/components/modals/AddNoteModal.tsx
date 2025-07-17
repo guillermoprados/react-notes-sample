@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from '../../hooks/useForm';
-import { notesApi } from '../../services/api';
 import { LoadingOverlay } from '../ui/LoadingOverlay';
+import { notesApi } from '../../services';
 
 interface AddNoteForm {
   content: string;
