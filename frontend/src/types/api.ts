@@ -34,6 +34,17 @@ export interface Note {
   category: Category | null;
 }
 
+export interface CreateNoteRequest {
+  content: string;
+}
+
+export interface CreateNoteResponse {
+  id: string;
+  content: string;
+  archived: boolean;
+  category: Category | null;
+}
+
 export interface NotesResponse {
   data: Note[];
   meta: PaginationMeta;

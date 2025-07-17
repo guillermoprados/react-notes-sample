@@ -5,7 +5,11 @@ import { useNotesStore } from '../../stores/notesStore';
 import { usePagination } from '../../hooks/usePagination';
 import { Paginator } from '../Paginator';
 
-const NotesList: React.FC = () => {
+interface NotesListProps {
+  onShowAddNewNote: () => void;
+}
+
+const NotesList: React.FC<NotesListProps> = ({ onShowAddNewNote }) => {
   const { isAuthenticated } = useAuthStore();
   const { notes, loading, pagination, fetchNotes } = useNotesStore();
 
@@ -56,7 +60,10 @@ const NotesList: React.FC = () => {
             />
           </div>
           <div className="flex-1 flex justify-end">
-            <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors">
+            <button
+              onClick={onShowAddNewNote}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors"
+            >
               Add New Note
             </button>
           </div>

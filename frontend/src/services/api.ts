@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { LoginSuccessResponse, NotesResponse } from '../types/api';
+import {
+  LoginSuccessResponse,
+  NotesResponse,
+  CreateNoteRequest,
+  CreateNoteResponse,
+} from '../types/api';
 import { useAuthStore } from '../stores/authStore';
 
 const API_URL =
@@ -47,6 +52,14 @@ export const notesApi = {
   ): Promise<NotesResponse> => {
     const api = authenticatedApi();
     const response = await api.get(`/notes?page=${page}&limit=${limit}`);
+    return response.data;
+  },
+
+  createNote: async (
+    noteData: CreateNoteRequest
+  ): Promise<CreateNoteResponse> => {
+    const api = authenticatedApi();
+    const response = await api.post('/notes', noteData);
     return response.data;
   },
 };
