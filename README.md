@@ -1,4 +1,20 @@
-# Hirelens Notes App
+# Simple Notes Web App
+
+This is a simple sample project that uses React for the frontend and NestJS for the backend in a mono-repo approach.
+
+The app lets users create, categorize, delete, and archive notes.
+
+It also supports user authentication and roles—admins can manage categories. (wip)
+
+## Main Technologies & Versions
+
+- React (18+)
+- Vite
+- Zustand (5+)
+- Tailwind CSS
+- NestJS (10+)
+- PostgreSQL (14+)
+- Docker & Docker Compose
 
 ## How to Run
 
@@ -15,15 +31,6 @@
 
 - **Email:** user@test.com
 - **Password:** 123123
-
-## Main Technologies & Versions
-
-- React (18+)
-- Vite (frontend build)
-- Tailwind CSS (latest)
-- NestJS (10+)
-- PostgreSQL (14+)
-- Docker & Docker Compose
 
 ## Notes
 
